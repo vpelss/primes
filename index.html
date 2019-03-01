@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="description" content="[Prime]">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>JS Prime Number Generator</title>
+
+</head>
+<body>
+  
+<p>Generates prime numbers using Eratosthenes’ prime number sieve. Why? Why not.</p>
+
+<form action='#'>
+Check for primes up to <input id='howMany' type='text' value='100000'> (too many may crash your browser/pc)
+  <br>
+ <input type="button" value='Give me my primes' onclick='startMessages(); setTimeout(GetPrimes, 500);'>
+</form>
+  <br>  
+<div id='otherHere'></div>
+  <br>  
+<div id='primesHere'></div>
+
+<script>
+
+var primesGoHere = document.getElementById('primesHere');
+var otherStuffGoHere = document.getElementById('otherHere');
+var primeLimit = 100000 ;
+var bfs = '';
+  
+function startMessages()
+{
+primeLimit = document.getElementById('howMany').value;
+otherStuffGoHere.innerHTML = "Prime Numbers up to " + primeLimit + "<br>";
+primesGoHere.innerHTML = '';
+} 
+
+function GetPrimes()
+{
+var aDate = new Date();
+var startTime = aDate.getTime();;
+var limitSqrt = Math.floor( Math.sqrt( primeLimit ) );
+var count = 0;
+var num; 
+var notPrime = []; //Associative Array of number known to not be prime
+var textnode ;
+
+//calculate and print primes up to Math.sqrt(primeLimit)
+//we are actually generating a list of non primes by adding each number (up to Math.sqrt(primeLimit) ) repeatedly until we reach primeLimit.
+//all sums will not be prime
+var sum;
+for(num = 2 ; num <= limitSqrt ; ++num )
+  {
+  sum = num;
+  if (num in notPrime)
+  //if (notPrime[num])
+         { //this number is not a prime. an earlier factor was repeatedly summed to equal this number
+         continue;
+         }
+  else
+         { //this number has not yet been marked 'not prime' so it must be prime as we have already checked for all possible lesser factors
+         ++count;
+         //textnode = document.createTextNode(  num + "\n" );         // Create a text node
+         //primesGoHere.appendChild(textnode); 
+         bfs = bfs +  num + ' ';
+         //primesGoHere.innerHTML = primesGoHere.innerHTML + num + "\n";
+         }   
+  while ( sum < primeLimit ) //#add $num repeatedly up to limit. all sums will not be prime. same as all multiples of num
+             {
+             sum = sum + num;
+             notPrime[sum] = true; //not prime
+             }      
+  }
+  
+//we have already printer all primes up to Math.sqrt( primeLimit )
+//and all non primes have been found up to primeLimit at this point.
+//so print already calculated primes after Math.sqrt(primeLimit)
+for( num = limitSqrt + 1; num < primeLimit; ++num)
+     {
+     if ( !(num in notPrime) )
+         {
+         ++count;
+         //textnode = document.createTextNode(  num + "\n" );         // Create a text node
+         //primesGoHere.appendChild(textnode); 
+         bfs = bfs +  num + ' ';
+         //primesGoHere.innerHTML = primesGoHere.innerHTML + num + "\n";
+         }
+     } 
+
+textnode = document.createTextNode(  bfs );         // Create a text node
+primesGoHere.appendChild(textnode); 
+
+aDate = new Date();
+var endTime = aDate.getTime();
+var timeTaken = (endTime - startTime) / 1000;
+
+otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML +"Seconds: ";
+otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + timeTaken;
+otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Number of primes: ' + count;
+}
+  
+</script>
+
+</body>
+</html>
