@@ -5,28 +5,61 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
   <title>JS Prime Number Generator</title>
+<script src="https://code.jquery.com/jquery-3.1.0.js"></script>
 
 </head>
 <body>
   
-<p>Generates prime numbers using Eratosthenes’ prime number sieve. Why? Why not.</p>
-
-<form action='#'>
+<p>Generates prime numbers using Eratosthenes’ prime number sieve. Why? Why not.<br><a href='https://github.com/vpelss/primes' target='_blank'>Code at Github</a></p>
+  
+<form action='#' onsubmit='startMessages(); setTimeout(GetPrimes, 500);'>
 Check for primes up to <input id='howMany' type='text' value='100000'> (too many may crash your browser/pc)
   <br>
  <input type="button" value='Give me my primes' onclick='startMessages(); setTimeout(GetPrimes, 500);'>
 </form>
-  <br>  
+<br>  
 <div id='otherHere'></div>
-  <br>  
+<br>  
 <div id='primesHere'></div>
+ 
+<script> 
+  
+//chrome uses low ram for dom display, but can be slow to display
+//ie slow to display large dom. variable ram depends on display requested but will take more ram to display the same as ff
+//ff constant high ram used for dom + fast display   
+  
+var printType = 2; 
+//0 = otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + 
+//chrome too long ram up down. 
+//ie too long .1 gb
+//ff too long HUGE ram 5 gb
+  
+//1 = textnode = document.createTextNode(  num + "\n" ); primesGoHere.appendChild(textnode);
+//chrome 10,000,000 : 4 sec  .5 gb(screen) 
+//ie too long .1 gb 
+//ff too long .5 gb
+  
+//2 = bfs = bfs + 
+//chrome 10,000,000 : 2.5 sec .2 gb ram then to 0 gb???
+//ie 2 sec .2 gb
+//ff 2.2 sec .2 gb
+  
+//3 = post print, then check for( num = limitSqrt + 1; num < primeLimit; ++num) { if ( !(num in notPrime) ) USES string bfs
+//chrome 10,000,000 3.4 sec .25 gb ram then to 0 gb???
+//ie 2.64 sec .2 gb
+//ff 4 sec .25 gb
+  
+//4 = $( "#primesHere" ).append( num + " " ); 
+//chrome 10,000,000 8.3 sec .5 gb
+//ie too long .1 gb
+//ff 8.8 sec .6 gb then freezes
 
-<script>
-
+//so always build string then post display ()  
+  
 var primesGoHere = document.getElementById('primesHere');
 var otherStuffGoHere = document.getElementById('otherHere');
 var primeLimit = 100000 ;
-var bfs = '';
+var bfs = ''; 
   
 function startMessages()
 {
@@ -52,7 +85,7 @@ var sum;
 for(num = 2 ; num <= limitSqrt ; ++num )
   {
   sum = num;
-  if (num in notPrime)
+  if (num in notPrime) 
   //if (notPrime[num])
          { //this number is not a prime. an earlier factor was repeatedly summed to equal this number
          continue;
@@ -60,16 +93,21 @@ for(num = 2 ; num <= limitSqrt ; ++num )
   else
          { //this number has not yet been marked 'not prime' so it must be prime as we have already checked for all possible lesser factors
          ++count;
-         //textnode = document.createTextNode(  num + "\n" );         // Create a text node
-         //primesGoHere.appendChild(textnode); 
-         bfs = bfs +  num + ' ';
-         //primesGoHere.innerHTML = primesGoHere.innerHTML + num + "\n";
+         if ( printType == 0 ) { primesGoHere.innerHTML = primesGoHere.innerHTML + num + "\n" }
+         if ( printType == 1 ) 
+           { 
+           textnode = document.createTextNode(  num + "\n" );
+           primesGoHere.appendChild(textnode);
+           }           
+         if ( printType == 2 ) { bfs = bfs +  num + ' ' }   
+         if ( printType == 4 ) { $( "#primesHere" ).append( num + " " ) }  
          }   
-  while ( sum < primeLimit ) //#add $num repeatedly up to limit. all sums will not be prime. same as all multiples of num
-             {
-             sum = sum + num;
-             notPrime[sum] = true; //not prime
-             }      
+    
+  while ( sum < primeLimit ) //#add $num repeatedly up to limit. all sums will not be prime. same as all multiples of num  
+    {
+    sum = sum + num;
+    notPrime[sum] = true; //not prime
+    }      
   }
   
 //we have already printer all primes up to Math.sqrt( primeLimit )
@@ -80,16 +118,46 @@ for( num = limitSqrt + 1; num < primeLimit; ++num)
      if ( !(num in notPrime) )
          {
          ++count;
-         //textnode = document.createTextNode(  num + "\n" );         // Create a text node
-         //primesGoHere.appendChild(textnode); 
-         bfs = bfs +  num + ' ';
-         //primesGoHere.innerHTML = primesGoHere.innerHTML + num + "\n";
+         if ( printType == 0 ) { primesGoHere.innerHTML = primesGoHere.innerHTML + num + "\n" }
+         if ( printType == 1 ) 
+           { 
+           textnode = document.createTextNode(  num + "\n" );
+           primesGoHere.appendChild(textnode);
+           }           
+         if ( printType == 2 ) { bfs = bfs +  num + ' ' } 
+         if ( printType == 4 ) { $( "#primesHere" ).append( num + " " ) }  
          }
      } 
 
-textnode = document.createTextNode(  bfs );         // Create a text node
-primesGoHere.appendChild(textnode); 
+if ( printType == 2 ) 
+  {
+  textnode = document.createTextNode(  bfs );         
+  primesGoHere.appendChild(textnode); 
+  }
+  
+//post print
+if ( printType == 3 )
+  {
+  for( num = 0 ; num < primeLimit; ++num)
+     {
+     if ( !(num in notPrime) ) 
+         {
+         //++count;
+         // primesGoHere.innerHTML = primesGoHere.innerHTML + num + "\n" }
 
+         //textnode = document.createTextNode(  num + "\n" );\
+         //primesGoHere.appendChild(textnode);
+                      
+         bfs = bfs +  num + ' ';      
+         }
+     }
+  textnode = document.createTextNode(  bfs );         
+  primesGoHere.appendChild(textnode);
+  // primesGoHere.innerHTML = bfs;
+  }
+
+bfs = ''; //release ram
+  
 aDate = new Date();
 var endTime = aDate.getTime();
 var timeTaken = (endTime - startTime) / 1000;
