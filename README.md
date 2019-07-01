@@ -1,2 +1,2 @@
 # primes
-prime number generator in js
+prime number generator in java script
