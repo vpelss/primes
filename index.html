@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="description" content="[Prime odd]">
+<meta name="description" content="Primes">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
   <title>JS Prime Number Generator</title>
   
 </head>
 <body>
-  
-<p>Generates prime numbers using Eratosthenes’ prime number sieve.<br><a href='https://github.com/vpelss/primes' target='_blank'>Code at Github</a></p>
+ 
+<p>Generates prime numbers using Eratosthenes’ prime number sieve.<br><a href='https://github.com/vpelss/primes' target='_blank'>Code at Github</a> IE not supported.</p>
   
 <form action='#' >
 Check for primes up to <input id='howMany' type='text' value='10'> (too many may crash your browser/pc)
@@ -38,41 +38,49 @@ Check for primes up to <input id='howMany' type='text' value='10'> (too many may
 var primesGoHere = document.getElementById('primesHere');
 var otherStuffGoHere = document.getElementById('otherHere');
 var primeLimit;
-var bfs; 
+var bfs= {}; 
 var handOffNumber;
 //var notPrime = []; //Array of numbers known to not be prime
 var notPrime; //object of number known to not be prime.
 var primeCount;
 var objectCount;
 
+//var startMessagesV = function startMessages()
 function startMessages()
 {
 primeLimit = document.getElementById('howMany').value.replace( /,/g , '' );
 otherStuffGoHere.innerHTML = ''; 
 primesGoHere.innerHTML = '';
 primesGoHere.value = 'Please be patient. I am working hard. This may be a great time to check Task Manager to see how much RAM and processing power I am using. For deep searches, Depending on browser, screen may go blank for a long time.'; 
-}
+};
 
+//place after each dom update so it shows in blocking function    
 function sleep(ms) 
   {
-  return new Promise(resolve => setTimeout(resolve, ms));
-  }   
+  //return new Promise(resolve => setTimeout(resolve, ms));
+  return new Promise(function(resolve, reject) 
+    {
+    setTimeout(function(){resolve('foo');}, 300);
+    });
+  };
 
-async function GetPrimes() 
+//must be async so we can use await inside function
+async function GetPrimes()  
 {
 var t0 = performance.now();
 var limitSqrt = Math.floor( Math.sqrt( primeLimit ) );
-bfs = '';
+bfs['value'] = ''; //so we can copy by reference in cliboard copy (obj)
 var num; 
 var notPrimeCount = 0;
 notPrime = {};
 primeCount = 0;
 objectCount = 0;
 handOffNumber = 0;
-  
+
+//setTimeout(function(){ var y = 0; }, 1); //put something in event loop so we   
 otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + "Starting calc of all non primes, and adding primes to bfs string up to Sqrt(Prime Limit)." ;
-await sleep(1);  
-    
+await sleep(0);  
+  
 //calculate and print primes up to Math.sqrt(primeLimit)
 //we are actually generating a list of non primes by adding each number (up to Math.sqrt(primeLimit) ) repeatedly until we reach primeLimit.
 //all sums will not be prime
@@ -93,7 +101,7 @@ for( num = 2 ; num <= limitSqrt ; num++ ) //every second # is marked and therefo
          { //this number has not yet been marked 'not prime' so it must be prime as we have already checked for all possible lesser factors
          //bfs = bfs +  num + ' ';
          //bfs = bfs.concat( num + ' ' );
-         bfs += num + ' ';
+         bfs['value'] += num + ' ';
          primeCount++;
          }   
     
@@ -114,7 +122,7 @@ handOffNumber = num;
 var t1 = performance.now();
 otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + "<br>All non primes are marked. String built to Sqrt(Prime Limit)." + (t1 - t0)/1000;
 otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML +  "<br>Finishing build of bfs string.";
-await sleep(1);  
+await sleep(0);  
   
 //we have already found all non primes and stored primes up to Math.sqrt( primeLimit ) in a string
 //and all non primes have been found up to primeLimit at this point.
@@ -128,7 +136,7 @@ for( num = handOffNumber; num <= primeLimit; num++)
      if ( !notPrime[num] )   
        {
        primeCount++;
-       bfs = bfs +  num + ' ';      
+       bfs['value'] = bfs['value'] +  num + ' ';      
        }
      else
        {
@@ -140,25 +148,26 @@ for( num = handOffNumber; num <= primeLimit; num++)
 var t2 = performance.now();
 otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Prime String generated. ' + (t2-t1)/1000;
 otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Erasing {}. Copy to display or clipboard may take some time!';
-await sleep(1);  
+await sleep(0);  
 
 notPrime = {}; //clear array
-await sleep(1);
+//await sleep(1);
 
 //chose how to output primes
 if ( document.querySelector('input[name="output"]:checked').value == 'clipboard' )
   { 
-  copyStringToClipboard (bfs) ;
+  //fails at 10,000,000. maybe needs time to settle objects?
+  copyStringToClipboard (bfs) ; //bfs is an object, so passing by reference
   primesGoHere.value = 'Done. Saved to clipboard.';
   }
 else
   {
-  primesGoHere.value = bfs;
+  primesGoHere.value = bfs['value'];
   //bfs = JSON.stringify(notPrime);
   //primesGoHere.value = primesGoHere.value + bfs; 
   }  
   
-bfs = ''; //release ram
+bfs['value'] = ''; //release ram
   
 var t3 = performance.now();
 otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Display generated. ' + (t3 - t2)/1000;
@@ -167,17 +176,18 @@ otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Number of primes:
 otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Not prime count: ' + notPrimeCount;
 otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Object count: ' + objectCount;
 
-return Promise.resolve(1);
-}
+//return Promise.resolve(1);
+};
 
 function copyStringToClipboard (str) 
   {
   var el = document.createElement('textarea'); // Create new element
-  el.value = str; // Set value (string to be copied)
-  // Set non-editable to avoid focus and move outside of view
+  //var el =  document.getElementById('primesHere');
+  //Set non-editable to avoid focus and move outside of view
   el.setAttribute('readonly', '');
   el.style = {position: 'absolute', left: '-9999px'};
   document.body.appendChild(el);
+  el.value = str['value']; // Set value (string to be copied)
   el.select(); // Select text inside element
   document.execCommand('copy'); // Copy text to clipboard
   document.body.removeChild(el); //remove 
