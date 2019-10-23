@@ -54,7 +54,8 @@ primesGoHere.innerHTML = '';
 primesGoHere.value = 'Please be patient. I am working hard. This may be a great time to check Task Manager to see how much RAM and processing power I am using. For deep searches, Depending on browser, screen may go blank for a long time.'; 
 };
 
-//place after each dom update so it shows in blocking function    
+//place after each dom update so it shows in blocking function
+//promise puts function on microtask loop, and 'await sleep(ms)' pauses GetPrimes allows promise to run on microtask loop so a dom update can run
 function sleep(ms) 
   {
   //return new Promise(resolve => setTimeout(resolve, ms));
@@ -64,6 +65,7 @@ function sleep(ms)
     });
   };
 
+//window.requestAnimationFrame(function(){});
 //must be async so we can use await inside function
 async function GetPrimes()  
 {
@@ -146,8 +148,8 @@ for( num = handOffNumber; num <= primeLimit; num++)
      }
 
 var t2 = performance.now();
-otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Prime String generated. ' + (t2-t1)/1000;
-otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Erasing {}. Copy to display or clipboard may take some time!';
+otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + "<br>All non primes are marked. String built to Sqrt(Prime Limit)." + (t1 - t0)/1000;
+otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML +  "<br>Finishing build of bfs string.";
 await sleep(0);  
 
 notPrime = {}; //clear array
