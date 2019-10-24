@@ -148,8 +148,9 @@ for( num = handOffNumber; num <= primeLimit; num++)
      }
 
 var t2 = performance.now();
-otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + "<br>All non primes are marked. String built to Sqrt(Prime Limit)." + (t1 - t0)/1000;
-otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML +  "<br>Finishing build of bfs string.";
+otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Prime String generated. ' + (t2-t1)/1000;
+otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Erasing {}. Copy to display or clipboard may take some time!';
+
 await sleep(0);  
 
 notPrime = {}; //clear array
