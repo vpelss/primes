@@ -55,13 +55,13 @@ primesGoHere.value = 'Please be patient. I am working hard. This may be a great 
 };
 
 //place after each dom update so it shows in blocking function
-// 'await sleep(ms)' pauses async GetPrimes on stack and puts sleep's promise on the microtask loop so a dom update can run
+// 'await sleep(0)' pauses async GetPrimes on stack and puts sleep's promise on the microtask loop so a dom update can run
 function sleep(ms) 
   {
   //return new Promise(resolve => setTimeout(resolve, ms));
   return new Promise(function(resolve, reject) 
     {
-    setTimeout(function(){resolve('foo');}, 300);
+    setTimeout(function(){resolve('foo');}, 0);
     });
   };
 
