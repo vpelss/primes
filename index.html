@@ -27,7 +27,7 @@ Check for primes up to <input id='howMany' type='text' value='10'> (too many may
 <br>  
 <div id='otherHere'></div>
 
-  <script>
+<script>
 //chrome uses low ram for dom display, but can be slow to display
 //ie slow to display large dom. variable ram depends on display requested but will take more ram to display the same as ff
 //ff constant high ram used for dom + fast display   
@@ -40,12 +40,11 @@ var otherStuffGoHere = document.getElementById('otherHere');
 var primeLimit;
 var bfs= {}; 
 var handOffNumber;
-//var notPrime = []; //Array of numbers known to not be prime
-var notPrime; //object of number known to not be prime.
-var primeCount;
+var notPrime = []; //Array of numbers known to not be prime. Better time and less ram
+//var notPrime = {}; //object of number known to not be prime.
+ primeCount;
 var objectCount;
 
-//var startMessagesV = function startMessages()
 function startMessages()
 {
 primeLimit = document.getElementById('howMany').value.replace( /,/g , '' );
@@ -65,7 +64,6 @@ function sleep(ms)
     });
   };
 
-//window.requestAnimationFrame(function(){});
 //must be async so we can use await inside function
 async function GetPrimes()  
 {
@@ -74,12 +72,11 @@ var limitSqrt = Math.floor( Math.sqrt( primeLimit ) );
 bfs['value'] = ''; //so we can copy by reference in cliboard copy (obj)
 var num; 
 var notPrimeCount = 0;
-notPrime = {};
+//notPrime = {};
 primeCount = 0;
 objectCount = 0;
 handOffNumber = 0;
 
-//setTimeout(function(){ var y = 0; }, 1); //put something in event loop so we   
 otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + "Starting calc of all non primes, and adding primes to bfs string up to Sqrt(Prime Limit)." ;
 await sleep(0);  
   
@@ -87,35 +84,28 @@ await sleep(0);
 //we are actually generating a list of non primes by adding each number (up to Math.sqrt(primeLimit) ) repeatedly until we reach primeLimit.
 //all sums will not be prime
 var sum;
-for( num = 2 ; num <= limitSqrt ; num++ ) //every second # is marked and therefore half will not not need to be marked later on (many consecutively)
-//for( num = 3 ; num <= limitSqrt ; num+=2 ) //since every even number is not marked, many will need to be marked later )and consecutivly). it does not save much memory on higher counts
+for( num = 2 ; num <= limitSqrt ; num++ ) 
   {
-  //if ( num%2 == 0 ) {continue;} //since every even number is not marked, many will need to be marked later )and consecutivly)
   sum = num;
-  //if (num in notPrime) 
   if (notPrime[num])
-         { //this number is not a prime. an earlier factor was repeatedly summed to equal this number
-         delete notPrime[num];
-         objectCount--;
-         continue;        
+         { //this number is not prime. an earlier factor was repeatedly summed to equal this number
+         delete notPrime[num]; //remove it from array. save ram
+         objectCount--;           
+         continue; //no need to do a sum for this #. eg if number is 6, all previous factors (2 , 3) were summed and cover he sums of 6. This saves a lot of time!!! the best example is 2, all even numbers have already been marked notPrime and can be skipped        
          }
   else
-         { //this number has not yet been marked 'not prime' so it must be prime as we have already checked for all possible lesser factors
-         //bfs = bfs +  num + ' ';
-         //bfs = bfs.concat( num + ' ' );
+         { //this number has not yet been marked 'not prime' so it MUST be prime as we have already checked for all possible lesser factors
          bfs['value'] += num + ' ';
          primeCount++;
          }   
     
-  while ( sum + num <= primeLimit ) //add $num repeatedly up to limit. all sums will not be prime. same as all multiples of num  
+  while ( sum + num <= primeLimit ) //add $num repeatedly up to limit. all sums will not be prime. the sums are same as the multiples of num  
     {
     sum = sum + num;
-    if ( !notPrime[sum] ) 
-      {
-      notPrimeCount++;
-      objectCount++;
-      notPrime[sum] = true; //not prime
-      }  
+    if ( notPrime[sum] ) {continue;} //is it already in the notPrime array. skip 
+    notPrimeCount++;
+    objectCount++;
+    notPrime[sum] = true; //not prime      
     }    
   } 
   
@@ -126,15 +116,14 @@ otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + "<br>All non primes ar
 otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML +  "<br>Finishing build of bfs string.";
 await sleep(0);  
   
-//we have already found all non primes and stored primes up to Math.sqrt( primeLimit ) in a string
-//and all non primes have been found up to primeLimit at this point.
-//so print already calculated primes after Math.sqrt(primeLimit)
-//for( num = limitSqrt + 1; num < primeLimit; num++)
+//at this point we have completed worke on numbers up to limitSqrt
+//and have bfs of primes up to limitSqrt
+//notPrime array should now be empty up to limitSqrt as we have no need of notPrime before limitSqrt  
+//now all we need to do is go through notPrime array from limitSqrt to primeLimit to find the rest of the primes
+  
+//print already calculated primes from limitSqrt to primeLimit
 for( num = handOffNumber; num <= primeLimit; num++)
-//if ( !(handOffNumber % 2) ) { handOffNumber++; } //if handOffNumber is even add 1
-//for( num = handOffNumber; num <= primeLimit; num+=2)
      { 
-     //if ( !(num in notPrime) )
      if ( !notPrime[num] )   
        {
        primeCount++;
@@ -154,7 +143,7 @@ otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Erasing {}. Copy 
 await sleep(0);  
 
 notPrime = {}; //clear array
-//await sleep(1);
+await sleep(0);
 
 //chose how to output primes
 if ( document.querySelector('input[name="output"]:checked').value == 'clipboard' )
@@ -166,8 +155,6 @@ if ( document.querySelector('input[name="output"]:checked').value == 'clipboard'
 else
   {
   primesGoHere.value = bfs['value'];
-  //bfs = JSON.stringify(notPrime);
-  //primesGoHere.value = primesGoHere.value + bfs; 
   }  
   
 bfs['value'] = ''; //release ram
@@ -178,8 +165,6 @@ otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Total time taken:
 otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Number of primes: ' + primeCount;
 otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Not prime count: ' + notPrimeCount;
 otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Object count: ' + objectCount;
-
-//return Promise.resolve(1);
 };
 
 function copyStringToClipboard (str) 
