@@ -5,19 +5,17 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
   <title>JS Prime Number Generator</title>
-  
 </head>
 <body>
- 
-<p>Generates prime numbers using Eratosthenes’ prime number sieve.<br><a href='https://github.com/vpelss/primes' target='_blank'>Code at Github</a> IE not supported.</p>
+
+  <p>Generates prime numbers using Eratosthenes’ prime number sieve.<br><a href='https://github.com/vpelss/primes' target='_blank'>Code at Github</a> IE not supported.</p>
   
 <form action='#' >
 Check for primes up to <input id='howMany' type='text' value='10'> (too many may crash your browser/pc)
 <br><br>
 <input type="radio" name="output" value="textbox" checked> TextBox (takes time to display)<br>
-<input type="radio" name="output" value="clipboard"> Clipboard (faster)<br>
-  
-  <br>
+<input type="radio" name="output" value="clipboard"> Clipboard (faster)
+  <br><br>
 <input type="submit" value='Give me my primes' onclick='startMessages(); GetPrimes(); return false;'>
 <br><br>
   <textarea id='primesHere' rows="10" cols="50" ></textarea>
@@ -27,22 +25,29 @@ Check for primes up to <input id='howMany' type='text' value='10'> (too many may
 <br>  
 <div id='otherHere'></div>
 
-<script>
+  <script>
+
 //chrome uses low ram for dom display, but can be slow to display
 //ie slow to display large dom. variable ram depends on display requested but will take more ram to display the same as ff
 //ff constant high ram used for dom + fast display   
 
 // 48 bytes per object
 // 4 gb limit for browser tab?
-    
+
+//notPrime array is slightly faster than objects for 100,000,000 
+//17 sec for array
+//19 sec for object
+//double time with delete keyword used
+//mem use 2.6 gb peak for object. can use delete keyword
+//mem use 2.2 gb peak for array. delete keyword does not shrink array
+//conclusion: object is best option
 var primesGoHere = document.getElementById('primesHere');
 var otherStuffGoHere = document.getElementById('otherHere');
 var primeLimit;
 var bfs= {}; 
 var handOffNumber;
-var notPrime = []; //Array of numbers known to not be prime. Better time and less ram
-//var notPrime = {}; //object of number known to not be prime.
- primeCount;
+var notPrime = []; //Array of numbers known to not be prime. Better time and slightly less ram than objects
+var primeCount;
 var objectCount;
 
 function startMessages()
@@ -57,12 +62,8 @@ primesGoHere.value = 'Please be patient. I am working hard. This may be a great 
 // 'await sleep(0)' pauses async GetPrimes on stack and puts sleep's promise on the microtask loop so a dom update can run
 function sleep(ms) 
   {
-  //return new Promise(resolve => setTimeout(resolve, ms));
-  return new Promise(function(resolve, reject) 
-    {
-    setTimeout(function(){resolve('foo');}, 0);
-    });
-  };
+  return new Promise(resolve => setTimeout(resolve, ms));
+  }; 
 
 //must be async so we can use await inside function
 async function GetPrimes()  
@@ -72,7 +73,6 @@ var limitSqrt = Math.floor( Math.sqrt( primeLimit ) );
 bfs['value'] = ''; //so we can copy by reference in cliboard copy (obj)
 var num; 
 var notPrimeCount = 0;
-//notPrime = {};
 primeCount = 0;
 objectCount = 0;
 handOffNumber = 0;
@@ -89,7 +89,6 @@ for( num = 2 ; num <= limitSqrt ; num++ )
   sum = num;
   if (notPrime[num])
          { //this number is not prime. an earlier factor was repeatedly summed to equal this number
-         delete notPrime[num]; //remove it from array. save ram
          objectCount--;           
          continue; //no need to do a sum for this #. eg if number is 6, all previous factors (2 , 3) were summed and cover he sums of 6. This saves a lot of time!!! the best example is 2, all even numbers have already been marked notPrime and can be skipped        
          }
@@ -98,9 +97,9 @@ for( num = 2 ; num <= limitSqrt ; num++ )
          bfs['value'] += num + ' ';
          primeCount++;
          }   
-    
+   
   while ( sum + num <= primeLimit ) //add $num repeatedly up to limit. all sums will not be prime. the sums are same as the multiples of num  
-    {
+    {    
     sum = sum + num;
     if ( notPrime[sum] ) {continue;} //is it already in the notPrime array. skip 
     notPrimeCount++;
@@ -131,18 +130,15 @@ for( num = handOffNumber; num <= primeLimit; num++)
        }
      else
        {
-       delete notPrime[num];
        objectCount--;
        } 
      }
 
 var t2 = performance.now();
 otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Prime String generated. ' + (t2-t1)/1000;
-otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Erasing {}. Copy to display or clipboard may take some time!';
+otherStuffGoHere.innerHTML = otherStuffGoHere.innerHTML + '<br>Erasing []. Copy to display or clipboard may take some time!'; 
 
-await sleep(0);  
-
-notPrime = {}; //clear array
+notPrime = []; //clear array 
 await sleep(0);
 
 //chose how to output primes
@@ -214,7 +210,8 @@ function copyToClipboard ()
 //ff 8.8 sec .6 gb then freezes
 
 //so always build string then post display ()       
-   </script>
+      
+    </script>
 
 </body>
 </html>
