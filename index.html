@@ -1,34 +1,50 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en" >
+
 <head>
-<meta name="description" content="Primes">
+  <meta charset="UTF-8">
+  
+  
+  
+
+  <title>Primes</title>
+
+    <link rel="canonical" href="https://codepen.io/vpelss/pen/YzqJmoX">
+  <meta name="description" content="Primes">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
   <title>JS Prime Number Generator</title>
-</head>
-<body>
-
-  <p>Generates prime numbers using Eratosthenes’ prime number sieve.<br><a href='https://github.com/vpelss/primes' target='_blank'>Code at Github</a> IE not supported.</p>
   
-<form action='#' >
-Check for primes up to <input id='howMany' type='text' value='10'> (too many may crash your browser/pc)
-<br><br>
-<input type="radio" name="output" value="textbox" checked> TextBox (takes time to display)<br>
-<input type="radio" name="output" value="clipboard"> Clipboard (faster)
+  
+  
+
+  
+  
+  
+</head>
+
+<body>
+  <p>Generates prime numbers using Eratosthenes’ prime number sieve.<br><a href="https://github.com/vpelss/primes" target="_blank">Code at Github</a> IE not supported.</p>
+
+<form action="#">
+  Check for primes up to <input id="howMany" type="text" value="10"> (too many may crash your browser/pc)
   <br><br>
-<input type="submit" value='Give me my primes' onclick='startMessages(); GetPrimes(); return false;'>
+  <input type="radio" name="output" value="textbox" checked> TextBox (takes time to display)<br>
+  <input type="radio" name="output" value="clipboard"> Clipboard (faster)
+  <br><br>
+  <input type="submit" value="Give me my primes" onclick="startMessages(); GetPrimes(); return false;">
 
 </form>
-<br>  
-  
-  <p>Log</p>
+<br>
+
+<p>Log</p>
 <div id='otherHere'></div>
-  
-  <p>Primes</p>
+
+<p>Primes</p>
 <div id='primes'></div>
-
-  <script>
-
+  
+      <script id="rendered-js" >
 //chrome uses low ram for dom display, but can be slow to display
 //ie slow to display large dom. variable ram depends on display requested but will take more ram to display the same as ff
 //ff constant high ram used for dom + fast display   
@@ -135,7 +151,7 @@ for( num = handOffNumber; num <= primeLimit; num++)
      if ( !notPrime[num] )   
        {
        primeCount++;
-       bfs['value'] = bfs['value'] +  num + ' ';      
+       bfs['value'] +=  num + ' ';      
        }
      else
        {
@@ -218,9 +234,10 @@ function copyToClipboard ()
 //ie too long .1 gb 
 //ff 8.8 sec .6 gb then freezes
 
-//so always build string then post display ()       
-      
+//so always build string then post display ()
     </script>
 
+  
 </body>
+
 </html>
